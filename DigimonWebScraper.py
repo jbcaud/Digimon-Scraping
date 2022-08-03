@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import requests
+#import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -31,17 +31,9 @@ def ValidationBS(driver, url):
     driver.execute_script("arguments[0].click();", driver.find_element(By.ID,'confirmTos'))
     driver.execute_script("arguments[0].click();", driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/div/div/div[3]/button'))
 
-# TODO: Separate into methods and iterate through cards.
-if __name__ == "__main__":
-    num = "35750"
+def getPage(driver, num):
+    print("Getting page " + num)
     url = "https://www.bandai-tcg-plus.com/card/" + num
-    fireFoxOptions = webdriver.FirefoxOptions()
-    fireFoxOptions.add_argument('-headless')
-    driver = webdriver.Firefox(options=fireFoxOptions)
-    driver.implicitly_wait(10)
-    ValidationBS(driver, url)
-
-    print("Getting page")
     driver.get(url)
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
@@ -77,5 +69,21 @@ if __name__ == "__main__":
             digimon["Card Set(s)"].append(footer[i].strip())
         i += 1
     
-    json_object = json.dumps(digimon, indent=4)
-    print(json_object)
+    #json_object = json.dumps(digimon, indent=4)
+    return digimon
+
+# TODO: Separate into methods and iterate through cards.
+if __name__ == "__main__":
+    a = "35750"
+    url = "https://www.bandai-tcg-plus.com/card/" + a
+    fireFoxOptions = webdriver.FirefoxOptions()
+    fireFoxOptions.add_argument('-headless')
+    driver = webdriver.Firefox(options=fireFoxOptions)
+    driver.implicitly_wait(10)
+    ValidationBS(driver, url)
+    
+    allDigimon = []
+    for num in range(35749, 35751):
+        res = getPage(driver, str(num))
+        allDigimon.append(res)
+    print(json.dumps(allDigimon, indent=4))
