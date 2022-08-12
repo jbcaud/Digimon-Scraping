@@ -1,12 +1,12 @@
 from bs4 import BeautifulSoup
-#import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.select import Select
-from selenium.webdriver.common.action_chains import ActionChains
 import json
+import time
+import asyncio
 
 # TODO: Possibly optimize this? Maybe using arguments[0] for everything
 def ValidationBS(driver, url):
@@ -31,10 +31,12 @@ def ValidationBS(driver, url):
     driver.execute_script("arguments[0].click();", driver.find_element(By.ID,'confirmTos'))
     driver.execute_script("arguments[0].click();", driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/div/div/div[3]/button'))
 
-def getPage(driver, num):
+async def getPage(driver, num):
     print("Getting page " + num)
     url = "https://www.bandai-tcg-plus.com/card/" + num
+    time.sleep(5)
     driver.get(url)
+    WebDriverWait(driver, 1000).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/main/div/div[2]/div/div[1]/div/div[2]/div[2]/button')))
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
     
@@ -68,22 +70,56 @@ def getPage(driver, num):
         if len(footer[i].strip()) != 0:
             digimon["Card Set(s)"].append(footer[i].strip())
         i += 1
-    
-    #json_object = json.dumps(digimon, indent=4)
     return digimon
 
-# TODO: Separate into methods and iterate through cards.
-if __name__ == "__main__":
-    a = "35750"
-    url = "https://www.bandai-tcg-plus.com/card/" + a
+async def main():
+    url = "https://www.bandai-tcg-plus.com/card/35750"
     fireFoxOptions = webdriver.FirefoxOptions()
-    fireFoxOptions.add_argument('-headless')
+    fireFoxOptions.add_argument('--headless')
+    fireFoxOptions.add_argument('--lang=en_US')
     driver = webdriver.Firefox(options=fireFoxOptions)
     driver.implicitly_wait(10)
     ValidationBS(driver, url)
     
+    pageNums = [5923, 5928, 5932, 5993, 5995, 6732, 6736, 6767, 20396, 20498, 20570, 20713, 24683, 24901, 25315, 25418, 35715, 35850, 35987, 35991, 36037, 36068, 36133, 36244, 36260, 36283]
     allDigimon = []
-    for num in range(35749, 35751):
-        res = getPage(driver, str(num))
-        allDigimon.append(res)
-    print(json.dumps(allDigimon, indent=4))
+    i = 0
+    startPage, endPage = 0, 0
+
+    startTime = time.perf_counter()
+    while (i < len(pageNums)):
+        startPage, endPage = pageNums[i], (pageNums[i + 1] + 1)
+        i += 2
+        for num in range(startPage, endPage):
+            # TODO: Find out if await and WebDriverWait help at all
+            allDigimon.append(await getPage(driver, str(num)))
+    
+    with open("digimon.json", "w") as file:
+        print(json.dumps(allDigimon, indent=4), file=file)
+        file.close()
+    endTime = time.perf_counter()
+
+    # TODO: Fix calculations
+    elapsedTime = str(endTime - startTime)
+    elapsedPage = str(endPage - startPage)
+    print("It took " + elapsedTime + " seconds to run " + elapsedPage + " pages.")
+    print("Approximately " + str(float(elapsedTime) / float(elapsedPage)) + " seconds per page.")
+
+    # Range of all pages that have Digimon, with the number of pages in that range
+    # 5923, 5928 - 6
+    # 5932, 5993 - 62
+    # 5995, 6732 - 738
+    # 6736, 6767 - 32
+    # 20396, 20498 - 103
+    # 20570, 20713 - 144
+    # 24683, 24901 - 219
+    # 25315, 25418 - 104
+    # 35715, 35850 - 136
+    # 35987, 35991 - 5
+    # 36037, 36068 - 32
+    # 36133, 36244 - 112
+    # 36260, 36283 - 24
+    # TOTAL: 1717
+
+if __name__ == "__main__":
+    asyncio.run(main())
