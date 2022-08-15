@@ -21,6 +21,10 @@ python DigimonWebScraper.py
 
 If you want to edit what pages or cards are pulled, just change the numbers in the pageNums array. Any even index will be the start page, and any odd index will be the end page.
 
+### Known Issues
+
+* Currently, any two color card will only have it's primary color listed (ex: BT8-032 only has the color "Blue" listed). This is not because of the scraper, it is how these cards are listed on Bandai's official card list. A fixed file with multicolor added may be present in the future, but until then you will need to update it manually.
+
 ## Acknowledgments
 
 All cards and information pulled using this program is the intellectual property of Bandai Namco. I do not claim to own any of the information on their website.
