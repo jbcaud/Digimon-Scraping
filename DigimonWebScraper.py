@@ -29,6 +29,7 @@ def ValidationBS(driver, url):
     # Accepts Bandai's privacy policy that they make you read on their website for some reason??
     print("Accepting privacy policy")
     driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/div/div/div[2]/div/div[4]/button').click()
+    # From here on out arguments[0].click() is used - otherwise throws a fit because they are still technically "hidden" even when waiting for them to become visible
     driver.execute_script("arguments[0].click();", driver.find_element(By.ID,'confirmPrivacyPolicy'))
     driver.execute_script("arguments[0].click();", driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/div/div/div[3]/button'))
 
@@ -58,12 +59,13 @@ async def getPage(driver, num):
     digimon["Card Number"] = cardNum
 
     # Loops through all info listed in table
+    # Limit is hardcoded to 20 - otherwise it pulls a hidden copy of them and it gets messy
     info = soup.find_all("div", {"class": "flexContainer borderDashed"}, limit=20)
-    for a in info:
-        b = str(a.text).strip().split("\n", 1)
-        if len(b) == 1 or b[1] == "\uff0d":
-            key, val = b[0], ''
-        else: key, val = key, val = b[0], b[1].strip()
+    for row in info:
+        splitRow = str(row.text).strip().split("\n", 1)
+        if len(splitRow) == 1 or splitRow[1] == "\uff0d":
+            key, val = splitRow[0], ''
+        else: key, val = key, val = splitRow[0], splitRow[1].strip()
         digimon[key] = val
     
     # TODO: Rewrite this whole section. Similar to format above
