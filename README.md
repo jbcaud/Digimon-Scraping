@@ -4,7 +4,7 @@ This is a basic web scraper built in Python that was made to pull information ab
 
 ## Description
 
-This was made because I have not been able to find a full set of all cards online yet. It is built using Selenium and BeautifulSoup4. There is also a copy of the full JSON file included in case you just want the data without having to use the script.
+This was made because I have not been able to find a full set of all cards online yet. It is built using Selenium and BeautifulSoup4. There is also a copy of the full JSON file included (digimonFull.json) in case you just want the data without having to use the script.
 
 ## Getting Started
 
