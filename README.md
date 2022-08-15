@@ -24,7 +24,6 @@ If you want to edit what pages or cards are pulled, just change the numbers in t
 ### Known Issues
 
 * Currently, any two color card will only have it's primary color listed (ex: BT8-032 only has the color "Blue" listed). This is not because of the scraper, it is how these cards are listed on Bandai's official card list. A fixed file with multicolor added may be present in the future, but until then you will need to update it manually.
-* There are two cards that are in this list that are not real cards on the website. I am perplexed as to how this happened and will try to find them, but that sounds extremely tedious and the worst searching game ever. If you are able to find them, you are now my favorite person, and feel free to open an issue and let me know.
 
 ## Acknowledgments
 
